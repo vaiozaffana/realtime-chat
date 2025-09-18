@@ -9,8 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
@@ -21,16 +21,20 @@ model User {
   name      String?
   avatarUrl String?
   createdAt DateTime @default(now())
-  messages  Message[]
+
+  messages Message[]
+  rooms    Room[]    @relation("UserRooms")
 }
 
 model Room {
-  id        String    @id @default(uuid())
+  id        String   @id @default(uuid())
   name      String
-  isPrivate Boolean   @default(false)
+  isPrivate Boolean  @default(false)
   createdBy String
-  createdAt DateTime  @default(now())
-  messages  Message[]
+  createdAt DateTime @default(now())
+
+  users    User[]    @relation("UserRooms")
+  messages Message[]
 }
 
 model Message {
@@ -38,9 +42,10 @@ model Message {
   content   String
   type      String   @default("text")
   createdAt DateTime @default(now())
-  senderId  String
-  roomId    String
 
-  sender User @relation(fields: [senderId], references: [id])
-  room   Room @relation(fields: [roomId], references: [id])
+  userId String
+  roomId String
+
+  user User @relation(fields: [userId], references: [id])
+  room Room @relation(fields: [roomId], references: [id])
 }
